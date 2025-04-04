@@ -8,11 +8,16 @@ class KnowledgeBase():
             if not isinstance(kb, list):
                 raise ValueError("Knowledge base must be a list.")
         self.kb = kb
+        self.clause_set = set()
+        for clause, _ in self.kb:
+            self.clause_set.add(frozenset(clause))
 
     def extend(self, sentence):
         if isinstance(sentence, list):
             if isinstance(sentence[0], tuple):
                 self.kb.extend(sentence)
+                for clause, _ in sentence:
+                    self.clause_set.add(frozenset(clause))
             else:
                 raise ValueError("Invalid sentence format.")
         else:
@@ -33,10 +38,12 @@ class KnowledgeBase():
         for literal in clause1:
             negated_literal = flip(literal)
             if negated_literal in clause2:
+                seen_literals = set()
                 new_clause = []
                 for lit in clause1 + clause2:
-                    if lit not in new_clause and lit != negated_literal and lit != literal:
+                    if lit != negated_literal and lit != literal and lit not in seen_literals:
                         new_clause.append(lit)
+                        seen_literals.add(lit)
 
                 new_clause = [(new_clause, [idx1, idx2])]
                 
@@ -44,26 +51,22 @@ class KnowledgeBase():
                     continue
                 if not self.clause_exists(new_clause[0][0]):
                     self.kb.extend(new_clause)
-                if new_clause[0][0] == []:
+                    self.clause_set.add(frozenset(new_clause[0][0]))
+                if not new_clause[0][0]:
                     return True
         return False
     
     def tautology(self, clause):
-        seen_literals = {}
+        seen_literals = set()
         for literal in clause:
             negated_literal = flip(literal)
             if negated_literal in seen_literals:
                 return True
-            seen_literals[literal] = True
+            seen_literals.add(literal)
         return False
 
     def clause_exists(self, clause):
-        for item in self.kb:
-            set1 = set(item[0])
-            set2 = set(clause)
-            if set1 == set2:
-                return True
-        return False
+        return frozenset(clause) in self.clause_set
 
     def __str__(self):
         return str(self.kb)
