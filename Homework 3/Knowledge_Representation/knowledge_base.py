@@ -13,9 +13,6 @@ class KnowledgeBase():
         if isinstance(sentence, list):
             if isinstance(sentence[0], tuple):
                 self.kb.extend(sentence)
-            elif isinstance(sentence[0], list):
-                for item in sentence:
-                    self.kb.append((item, []))
             else:
                 raise ValueError("Invalid sentence format.")
         else:
@@ -52,10 +49,12 @@ class KnowledgeBase():
         return False
     
     def tautology(self, clause):
+        seen_literals = {}
         for literal in clause:
             negated_literal = flip(literal)
-            if negated_literal in clause:
+            if negated_literal in seen_literals:
                 return True
+            seen_literals[literal] = True
         return False
 
     def clause_exists(self, clause):
@@ -80,4 +79,3 @@ def parse_array(kb_array: list) -> list:
     if not kb:
         raise ValueError("Knowledge base cannot be empty.")
     return kb[:-1], kb[-1]
-        
