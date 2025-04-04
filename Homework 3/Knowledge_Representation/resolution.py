@@ -11,12 +11,10 @@ def resolution(kb_file):
     while i < kb_size:
         for j in range(0, i):
             if kb.resolve(i, j):
-                print(kb.clause_set)
                 return True, kb.kb
         i += 1
         kb_size = len(kb.kb)
-    
-    print(kb.clause_set)
+
     return False, kb.kb
 
 def parse_kb(kb_file):
