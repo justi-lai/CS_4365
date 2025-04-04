@@ -1,5 +1,5 @@
 from knowledge_base import KnowledgeBase, parse_array
-from utils import negate, is_not, flip
+from utils import negate
 
 def resolution(kb_file):
     kb, query = parse_kb(kb_file)

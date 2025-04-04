@@ -1,4 +1,4 @@
-from utils import negate, is_not, flip
+from utils import flip
 
 class KnowledgeBase():
     def __init__(self, kb=None):
@@ -36,7 +36,12 @@ class KnowledgeBase():
         for literal in clause1:
             negated_literal = flip(literal)
             if negated_literal in clause2:
-                new_clause = [(list(set(clause1 + clause2) - {literal, negated_literal}), [idx1, idx2])]
+                new_clause = []
+                for lit in clause1 + clause2:
+                    if lit not in new_clause and lit != negated_literal and lit != literal:
+                        new_clause.append(lit)
+
+                new_clause = [(new_clause, [idx1, idx2])]
                 
                 if self.tautology(new_clause[0][0]):
                     continue
@@ -55,7 +60,9 @@ class KnowledgeBase():
 
     def clause_exists(self, clause):
         for item in self.kb:
-            if item[0] == clause:
+            set1 = set(item[0])
+            set2 = set(clause)
+            if set1 == set2:
                 return True
         return False
 
