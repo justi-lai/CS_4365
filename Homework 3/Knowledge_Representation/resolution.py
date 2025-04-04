@@ -3,17 +3,18 @@ from utils import negate, is_not, flip
 
 def resolution(kb_file):
     kb, query = parse_kb(kb_file)
-    print("Knowledge Base:")
-    print(kb)
-    print("Query:")
-    print(query)
     negated_query = negate(query)
-    print("Negated Query:")
-    print(negated_query)
-
     kb.extend(negated_query)
-    print("Updated Knowledge Base:")
-    print(kb)
+
+    kb_size = len(kb.kb)
+    i = 0
+    while i < kb_size:
+        for j in range(0, i):
+            if kb.resolve(i, j):
+                return True, kb.kb
+        i += 1
+        kb_size = len(kb.kb)
+    return False, kb.kb
 
 def parse_kb(kb_file):
     kb = list()

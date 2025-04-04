@@ -1,3 +1,5 @@
+from utils import negate, is_not, flip
+
 class KnowledgeBase():
     def __init__(self, kb=None):
         if kb is None:
@@ -9,18 +11,15 @@ class KnowledgeBase():
 
     def extend(self, sentence):
         if isinstance(sentence, list):
-            if isinstance(sentence[0], str):
-                sentence = [sentence]
-                self.kb.append(sentence)
-            elif isinstance(sentence[0], list):
+            if isinstance(sentence[0], tuple):
                 self.kb.extend(sentence)
+            elif isinstance(sentence[0], list):
+                for item in sentence:
+                    self.kb.append((item, []))
             else:
-                raise ValueError("Each sentence must be a string or a list of strings.")
-        elif isinstance(sentence, str):
-            sentence = [sentence]
-            self.kb.append(sentence)
+                raise ValueError("Invalid sentence format.")
         else:
-            raise ValueError("Each sentence must be a string or a list of strings.")
+            raise ValueError("Sentence must be a list.")
 
     def ask(self, query):
         for sentence in self.kb:
@@ -31,14 +30,34 @@ class KnowledgeBase():
     def resolve(self, idx1, idx2):
         if idx1 >= len(self.kb) or idx2 >= len(self.kb):
             raise IndexError("Index out of range.")
-        clause1 = self.kb[idx1]
-        clause2 = self.kb[idx2]
-        resolvents = []
+        clause1 = self.kb[idx1][0]
+        clause2 = self.kb[idx2][0]
+
         for literal in clause1:
-            if literal in clause2:
-                new_clause = list(set(clause1 + clause2) - {literal})
-                resolvents.append(new_clause)
-        return resolvents
+            negated_literal = flip(literal)
+            if negated_literal in clause2:
+                new_clause = [(list(set(clause1 + clause2) - {literal, negated_literal}), [idx1, idx2])]
+                
+                if self.tautology(new_clause[0][0]):
+                    continue
+                if not self.clause_exists(new_clause[0][0]):
+                    self.kb.extend(new_clause)
+                if new_clause[0][0] == []:
+                    return True
+        return False
+    
+    def tautology(self, clause):
+        for literal in clause:
+            negated_literal = flip(literal)
+            if negated_literal in clause:
+                return True
+        return False
+
+    def clause_exists(self, clause):
+        for item in self.kb:
+            if item[0] == clause:
+                return True
+        return False
 
     def __str__(self):
         return str(self.kb)
@@ -50,7 +69,7 @@ def parse_array(kb_array: list) -> list:
             raise ValueError("Each line in the knowledge base must be a string.")
         line = line.strip()
         if line:
-            kb.append(line.split())
+            kb.append((line.split(), []))
     if not kb:
         raise ValueError("Knowledge base cannot be empty.")
     return kb[:-1], kb[-1]

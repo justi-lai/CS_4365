@@ -1,14 +1,15 @@
 def negate(expr):
-    if isinstance(expr, list):
+    if isinstance(expr, tuple):
         if len(expr) == 1:
-            return [flip(expr[0])]
+            return [(flip(expr[0][0]), [])]
         elif len(expr) >= 2:
             negated_expr = []
-            for item in expr:
+            clause, parents = expr
+            for item in clause:
                 if not isinstance(item, str):
                     raise ValueError("Each item in the expression list must be a string.")
                 negated_item = flip(item)
-                negated_expr.append([negated_item])
+                negated_expr.append(([negated_item], parents))
             return negated_expr
     elif isinstance(expr, str):
         return flip(expr)
