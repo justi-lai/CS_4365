@@ -14,9 +14,11 @@ def main():
     for i in range(len(final_kb)):
         clause, parents = final_kb[i]
         if clause:
-            print(f"{i+1}. {" ".join(clause)} {{{", ".join(str(p+1) for p in parents)}}}")
+            string = str(i+1) + ". " + " ".join([str(literal) for literal in clause]) + ' {' + ", ".join([str(p+1) for p in parents]) + '}'
+            print(string)
         else:
-            print(f"{i+1}. Contradiction {{{", ".join(str(p+1) for p in parents)}}}")
+            string = str(i+1) + ". Contractiction {" + ", ".join([str(p+1) for p in parents]) + '}'
+            print(string)
     if success:
         print("Valid")
     else:
