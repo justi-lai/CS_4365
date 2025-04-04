@@ -9,9 +9,8 @@ class KnowledgeBase():
                 raise ValueError("Knowledge base must be a list.")
         self.kb = kb
         self.clause_set = set()
-        for clause, _ in self.kb:  # Populate clause_set with initial kb
+        for clause, _ in self.kb:
             self.clause_set.add(frozenset(clause))
-        # print(f"clause_set: {self.clause_set}")
 
     def extend(self, sentence):
         if isinstance(sentence, list):
@@ -52,6 +51,7 @@ class KnowledgeBase():
                     continue
                 if not self.clause_exists(new_clause[0][0]):
                     self.kb.extend(new_clause)
+                    self.clause_set.add(frozenset(new_clause[0][0]))
                 if not new_clause[0][0]:
                     return True
         return False
